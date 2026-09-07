@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Специалисты — Медицинский центр «Планета Здоровья», Красноярск</title>
+<meta name="description" content="Врачи медицинского центра «Планета Здоровья»: невролог, ортопед-травматолог, психолог, педагог-дефектолог высшей квалификационной категории.">
+<link rel="canonical" href="https://ЗАМЕНИТЕ-НА-ДОМЕН.ru/spetsialisty">
+<link rel="icon" href="/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="/img/logo-mark-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+
+<main>
+  <div class="page-header wrap">
+    <span class="eyebrow">Специалисты</span>
+    <h1>Врачи высшей квалификационной категории</h1>
+    <p class="lede">Главное в любой клинике — квалифицированные специалисты, которые точно поставят диагноз и найдут варианты решения проблемы. Наши врачи регулярно проходят курсы повышения квалификации, посещают профильные семинары, обучаются новым методикам.</p>
+  </div>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap" id="doctorsList"></div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cta-band">
+        <span class="eyebrow" style="color:var(--amber);">Запись на приём</span>
+        <h2>Выберите специалиста и запишитесь на консультацию</h2>
+        <a href="/zapis" class="btn btn-primary" style="background:#fff; color:var(--ink);">Записаться на приём</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footerPlaceholder"></div>
+
+<script src="/common.js"></script>
+<script>
+function initialOf(name) {
+  return (name || '?').trim().charAt(0).toUpperCase();
+}
+async function loadDoctors() {
+  const doctors = await fetch('/api/doctors').then(r => r.json());
+  document.getElementById('doctorsList').innerHTML = doctors.map(d => `
+    <div class="doctor-card ${d.is_chief ? 'chief' : ''}" id="doc${d.id}">
+      <div class="doctor-photo">
+        ${d.photo ? `<img src="${escAttr(d.photo)}" alt="${escAttr(d.full_name)}">` : `<span class="initial">${esc(initialOf(d.full_name))}</span>`}
+      </div>
+      <div>
+        <div class="doctor-head">
+          <h3>${esc(d.full_name)}</h3>
+        </div>
+        <p class="role">${esc(d.role)}</p>
+        ${d.experience_years ? `<div class="doctor-exp">Стаж ${esc(d.experience_years)}+ лет</div>` : ''}
+        <div class="body-rich">${escMultiline(d.bio)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+loadDoctors();
+</script>
+</body>
+</html>

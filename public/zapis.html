@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Запись на приём — Медицинский центр «Планета Здоровья», Красноярск</title>
+<meta name="description" content="Запишитесь на приём в медицинский центр «Планета Здоровья» в Красноярске. Выберите направление или специалиста и удобное время.">
+<link rel="canonical" href="https://ЗАМЕНИТЕ-НА-ДОМЕН.ru/zapis">
+<link rel="icon" href="/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="/img/logo-mark-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+
+<main>
+  <div class="page-header wrap">
+    <span class="eyebrow">Запись на приём</span>
+    <h1>Запишитесь на консультацию</h1>
+    <p class="lede">Заполните форму — мы свяжемся с вами по телефону для подтверждения удобного времени.</p>
+  </div>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <form class="form-card" id="zapisForm">
+        <div class="field">
+          <label for="f_name">Имя</label>
+          <input type="text" id="f_name" name="name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="f_phone">Телефон *</label>
+          <input type="tel" id="f_phone" name="phone" autocomplete="tel" required placeholder="+7 (___) ___-__-__">
+        </div>
+        <div class="field">
+          <label for="f_service">Желаемое направление или специалист</label>
+          <select id="f_service" name="service_or_doctor">
+            <option value="">Не важно / уточню на консультации</option>
+            <optgroup label="Направления" id="serviceOptions"></optgroup>
+            <optgroup label="Специалисты" id="doctorOptions"></optgroup>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f_time">Удобное время</label>
+          <input type="text" id="f_time" name="preferred_time" placeholder="например, будни после 17:00">
+        </div>
+        <div class="field">
+          <label for="f_message">Сообщение</label>
+          <textarea id="f_message" name="message" placeholder="Кратко опишите жалобу или вопрос"></textarea>
+        </div>
+        <div class="field field-check">
+          <input type="checkbox" id="f_consent" name="consent" required>
+          <label for="f_consent" style="margin:0; font-weight:400;">Согласен(на) на обработку персональных данных в соответствии с <a href="/privacy" target="_blank">политикой обработки персональных данных</a> (152-ФЗ) *</label>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Отправить заявку</button>
+        <p class="form-msg" id="formMsg"></p>
+      </form>
+
+      <div class="disclaimer-box" style="max-width:640px; margin-top:24px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.18A2 2 0 0 0 3.9 21h16.2a2 2 0 0 0 1.79-2.96L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+        <p>Имеются противопоказания. Необходима консультация специалиста.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footerPlaceholder"></div>
+
+<script src="/common.js"></script>
+<script>
+async function loadOptions() {
+  const [services, doctors] = await Promise.all([
+    fetch('/api/services').then(r => r.json()),
+    fetch('/api/doctors').then(r => r.json()),
+  ]);
+  document.getElementById('serviceOptions').innerHTML = services.map(s => `<option value="${escAttr('Направление: ' + s.title)}">${esc(s.title)}</option>`).join('');
+  document.getElementById('doctorOptions').innerHTML = doctors.map(d => `<option value="${escAttr('Специалист: ' + d.full_name)}">${esc(d.full_name)}</option>`).join('');
+
+  // Предзаполнение из query-параметра ?service=slug (переход со страницы направления)
+  const params = new URLSearchParams(window.location.search);
+  const svcSlug = params.get('service');
+  if (svcSlug) {
+    const svc = services.find(s => s.slug === svcSlug);
+    if (svc) document.getElementById('f_service').value = 'Направление: ' + svc.title;
+  }
+}
+loadOptions();
+
+document.getElementById('zapisForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msgEl = document.getElementById('formMsg');
+  msgEl.textContent = '';
+  msgEl.className = 'form-msg';
+  const payload = {
+    name: document.getElementById('f_name').value,
+    phone: document.getElementById('f_phone').value,
+    service_or_doctor: document.getElementById('f_service').value,
+    preferred_time: document.getElementById('f_time').value,
+    message: document.getElementById('f_message').value,
+    consent: document.getElementById('f_consent').checked,
+    source: 'zapis-form',
+  };
+  try {
+    const res = await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Ошибка отправки');
+    msgEl.textContent = 'Заявка отправлена. Мы свяжемся с вами в ближайшее время.';
+    msgEl.className = 'form-msg ok';
+    document.getElementById('zapisForm').reset();
+  } catch (err) {
+    msgEl.textContent = err.message;
+    msgEl.className = 'form-msg err';
+  }
+});
+</script>
+</body>
+</html>

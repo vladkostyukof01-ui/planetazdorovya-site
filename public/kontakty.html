@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Контакты — Медицинский центр «Планета Здоровья», Красноярск</title>
+<meta name="description" content="Адрес, телефон и режим работы медицинского центра «Планета Здоровья»: г. Красноярск, ул. 2-я Огородная, д. 22А, 200-22-10.">
+<link rel="canonical" href="https://ЗАМЕНИТЕ-НА-ДОМЕН.ru/kontakty">
+<link rel="icon" href="/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="/img/logo-mark-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+
+<main>
+  <div class="page-header wrap">
+    <span class="eyebrow">Контакты</span>
+    <h1>Как нас найти</h1>
+  </div>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap contact-grid">
+      <div>
+        <div class="contact-card">
+          <h4>Адрес</h4>
+          <p class="value" id="addr"></p>
+        </div>
+        <div class="contact-card">
+          <h4>Телефон</h4>
+          <p class="value"><a id="phoneLink" href="#"></a></p>
+        </div>
+        <div class="contact-card">
+          <h4>Email</h4>
+          <p class="value" style="font-size:1rem;"><a id="emailLink" href="#"></a></p>
+        </div>
+        <div class="contact-card">
+          <h4>Режим работы</h4>
+          <p style="font-size:0.95rem;" id="workHours"></p>
+        </div>
+        <div class="contact-card">
+          <h4>Реквизиты</h4>
+          <p class="mono" style="font-size:0.88rem; color:var(--ink-soft); line-height:1.9;" id="requisites"></p>
+        </div>
+        <div class="contact-card">
+          <h4>Лицензия</h4>
+          <p style="font-size:0.92rem;" id="licLine"></p>
+        </div>
+      </div>
+      <div>
+        <div class="map-frame">
+          <iframe id="mapFrame" src="" loading="lazy" title="Карта — расположение клиники"></iframe>
+        </div>
+        <div style="margin-top:24px;">
+          <a href="/zapis" class="btn btn-primary" style="width:100%; justify-content:center;">Записаться на приём</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footerPlaceholder"></div>
+
+<script src="/common.js"></script>
+<script>
+async function loadContacts() {
+  const settings = await loadSettingsGlobal();
+  document.getElementById('addr').textContent = settings.legal_address || '';
+  const phoneLink = document.getElementById('phoneLink');
+  phoneLink.textContent = settings.phone_display || settings.phone || '';
+  phoneLink.href = 'tel:' + (settings.phone || '').replace(/[^\d+]/g, '');
+  const emailLink = document.getElementById('emailLink');
+  emailLink.textContent = settings.email || '';
+  emailLink.href = 'mailto:' + (settings.email || '');
+  document.getElementById('workHours').textContent = settings.work_hours || '';
+  document.getElementById('requisites').innerHTML = `ИНН ${esc(settings.inn || '')}<br>КПП ${esc(settings.kpp || '')}<br>ОГРН ${esc(settings.ogrn || '')}`;
+  document.getElementById('licLine').textContent = `${settings.license_number || ''} от ${settings.license_date || ''}`;
+  document.getElementById('mapFrame').src = settings.map_embed_url || '';
+}
+loadContacts();
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Отзывы — Медицинский центр «Планета Здоровья», Красноярск</title>
+<meta name="description" content="Отзывы пациентов медицинского центра «Планета Здоровья»: неврология, психология, коррекционная педагогика, ортопедия.">
+<link rel="canonical" href="https://ЗАМЕНИТЕ-НА-ДОМЕН.ru/otzyvy">
+<link rel="icon" href="/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="/img/logo-mark-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+
+<main>
+  <div class="page-header wrap">
+    <span class="eyebrow">Отзывы наших пациентов</span>
+    <h1>Что говорят пациенты о клинике</h1>
+    <p class="lede">Мы тщательно следим за качеством оказания услуг и постоянно пытаемся его улучшить — будем благодарны за обратную связь.</p>
+  </div>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap" style="max-width:820px;" id="reviewsList"></div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cta-band">
+        <span class="eyebrow" style="color:var(--amber);">Ваш опыт важен для нас</span>
+        <h2>Запишитесь на консультацию к нашим специалистам</h2>
+        <a href="/zapis" class="btn btn-primary" style="background:#fff; color:var(--ink);">Записаться на приём</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footerPlaceholder"></div>
+
+<script src="/common.js"></script>
+<script>
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso.replace(' ', 'T') + 'Z');
+  return d.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+async function loadReviews() {
+  const reviews = await fetch('/api/reviews').then(r => r.json());
+  const list = document.getElementById('reviewsList');
+  if (!reviews.length) {
+    list.innerHTML = '<p style="color:var(--ink-faint);">Отзывов пока нет.</p>';
+    return;
+  }
+  list.innerHTML = reviews.map(r => `
+    <div class="review-item">
+      <div class="review-head">
+        <span class="review-author">${esc(r.author_name)}</span>
+        <time>${esc(formatDate(r.published_at))}</time>
+      </div>
+      <p>${escMultiline(r.body)}</p>
+    </div>
+  `).join('');
+}
+loadReviews();
+</script>
+</body>
+</html>

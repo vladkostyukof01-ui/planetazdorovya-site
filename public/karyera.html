@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карьера — Медицинский центр «Планета Здоровья», Красноярск</title>
+<meta name="description" content="Вакансии медицинского центра «Планета Здоровья» в Красноярске: работа с официальным оформлением и карьерным ростом.">
+<link rel="canonical" href="https://ЗАМЕНИТЕ-НА-ДОМЕН.ru/karyera">
+<link rel="icon" href="/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="/img/logo-mark-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+
+<main>
+  <div class="page-header wrap">
+    <span class="eyebrow">Карьера</span>
+    <h1>Почему стоит работать в нашей команде</h1>
+  </div>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="vacancy-grid">
+        <div class="vacancy-item">
+          <div class="glyph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+          <h3>Стабильность</h3>
+          <p>Трудоустройство по ТК РФ, официальная заработная плата без задержек 2 раза в месяц, стабильная работа при любых условиях рынка труда.</p>
+        </div>
+        <div class="vacancy-item">
+          <div class="glyph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v6M21 7h-6"/></svg></div>
+          <h3>Карьерный рост</h3>
+          <p>Все возможности для начала успешной карьеры и отличные перспективы для профессионалов — самореализация в профессии и в творчестве.</p>
+        </div>
+        <div class="vacancy-item">
+          <div class="glyph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 20c.2-2.6 2-4.6 4-4.6"/></svg></div>
+          <h3>Коллектив</h3>
+          <p>Молодой, дружный коллектив, сильная команда, насыщенная корпоративная жизнь — работаем с удовольствием.</p>
+        </div>
+        <div class="vacancy-item">
+          <div class="glyph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 1 3 2.2c0 2.8-6 1.6-6 4.6 0 1.3 1.3 2.2 3 2.2s3-1.1 3-2.5"/></svg></div>
+          <h3>Вознаграждение</h3>
+          <p>Возможность зарабатывать больше, если работать лучше и стремиться к результату.</p>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:20px;">
+        <span class="eyebrow">Открытые вакансии</span>
+        <h2>Актуальные позиции</h2>
+      </div>
+      <div class="disclaimer-box" style="background:var(--accent-soft); border-color:var(--line);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>
+        <p style="color:var(--ink);">К сожалению, на текущий момент актуальных вакансий нет. Подробная информация — по телефону <span id="karyeraPhone" class="mono"></span>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footerPlaceholder"></div>
+
+<script src="/common.js"></script>
+<script>
+async function loadKaryera() {
+  const settings = await loadSettingsGlobal();
+  document.getElementById('karyeraPhone').textContent = settings.phone_display || settings.phone || '';
+}
+loadKaryera();
+</script>
+</body>
+</html>

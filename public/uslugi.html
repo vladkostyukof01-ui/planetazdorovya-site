@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Направления — Медицинский центр «Планета Здоровья», Красноярск</title>
+<meta name="description" content="Неврология, ортопедия, экспресс-ортезирование, психология и развивающие занятия с детьми в медицинском центре «Планета Здоровья», Красноярск.">
+<link rel="canonical" href="https://ЗАМЕНИТЕ-НА-ДОМЕН.ru/uslugi">
+<link rel="icon" href="/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="/img/logo-mark-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+
+<main>
+  <div class="page-header wrap">
+    <span class="eyebrow">Направления работы</span>
+    <h1>Пять направлений специализированной помощи</h1>
+    <p class="lede">Каждое направление применяется как часть индивидуальной программы, которую врач составляет по итогам консультации и диагностики.</p>
+  </div>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="services-grid services-grid-2col" id="servicesGrid"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="disclaimer-box">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.18A2 2 0 0 0 3.9 21h16.2a2 2 0 0 0 1.79-2.96L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+        <p>Имеются противопоказания. Необходима консультация специалиста.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footerPlaceholder"></div>
+
+<script src="/common.js"></script>
+<script>
+async function loadServices() {
+  const services = await fetch('/api/services').then(r => r.json());
+  document.getElementById('servicesGrid').innerHTML = renderServiceCards(services);
+}
+loadServices();
+</script>
+</body>
+</html>

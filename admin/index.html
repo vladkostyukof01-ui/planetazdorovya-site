@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель — Медицинский центр «Планета Здоровья»</title>
+<style>
+  :root {
+    --ink: #1B2430; --ink-soft: #4B5766; --ink-faint: #8592A0;
+    --panel: #F5F0E7; --line: #DED2BC;
+    --accent: #3E5A6B; --accent-deep: #1B2430; --accent-pale: #E4ECEF;
+    --danger: #C43F2C; --success: #3E5A6B;
+    --radius: 8px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); background: #fff; color: var(--ink); font-size: 14.5px; line-height: 1.5; }
+  a { color: inherit; }
+  input, select, textarea, button { font-family: inherit; font-size: inherit; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar b { font-size: 17px; }
+  .topbar .who { color: var(--ink-faint); font-size: 13px; }
+
+  .layout { display: flex; min-height: calc(100vh - 57px); }
+  .sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid var(--line); padding: 20px 0; background: var(--panel); overflow-y: auto; }
+  .sidebar button { display: block; width: 100%; text-align: left; padding: 10px 24px; border: none; background: transparent; color: var(--ink-soft); cursor: pointer; font-size: 13.5px; }
+  .sidebar button:hover { background: var(--accent-pale); }
+  .sidebar button.active { background: var(--accent-pale); color: var(--ink); font-weight: 600; border-right: 3px solid var(--accent-deep); }
+
+  .content { flex: 1; padding: 28px 32px; max-width: 980px; overflow-y: auto; }
+  .content h1 { font-size: 21px; margin: 0 0 6px; }
+  .content .subtitle { color: var(--ink-faint); margin: 0 0 22px; font-size: 13.5px; }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; }
+  .card h2 { font-size: 14.5px; margin: 0 0 12px; }
+
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 5px; }
+  .field input, .field textarea, .field select { width: 100%; padding: 8px 11px; border-radius: 4px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+  .field textarea { resize: vertical; }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 4px; border: none; background: var(--accent-deep); color: #fff; font-weight: 600; cursor: pointer; }
+  .btn:hover { background: var(--accent); }
+  .btn.secondary { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .btn.small { padding: 6px 11px; font-size: 12.5px; }
+  .btn.danger { background: var(--danger); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+
+  .login-wrap { max-width: 360px; margin: 10vh auto; padding: 32px; }
+  .login-wrap h1 { font-size: 21px; margin-bottom: 4px; }
+  .login-wrap p { color: var(--ink-faint); margin-bottom: 22px; font-size: 13.5px; }
+  .error-msg { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 18px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  th { color: var(--ink-faint); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.03em; }
+
+  .service-item { border: 1px dashed var(--line); border-radius: 6px; padding: 12px; margin-bottom: 10px; display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; align-items: start; }
+  .hidden { display: none !important; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13.5px; opacity: 0; transform: translateY(8px); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; z-index: 999; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-wrap">
+  <h1>Админ-панель</h1>
+  <p>Медицинский центр «Планета Здоровья» — управление сайтом.</p>
+  <div class="field"><label for="loginUsername">Логин</label><input type="text" id="loginUsername" autocomplete="username"></div>
+  <div class="field"><label for="loginPassword">Пароль</label><input type="password" id="loginPassword" autocomplete="current-password"></div>
+  <button class="btn" id="loginBtn" style="width:100%; justify-content:center;">Войти</button>
+  <p class="error-msg" id="loginError"></p>
+</div>
+
+<div id="adminApp" class="hidden">
+  <div class="topbar">
+    <b>Планета Здоровья · Админ-панель</b>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <span class="who" id="whoAmI"></span>
+      <button class="btn secondary small" id="logoutBtn">Выйти</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div class="sidebar">
+      <button class="nav-btn active" data-view="leads">Заявки</button>
+      <button class="nav-btn" data-view="prices">Прайс-лист</button>
+      <button class="nav-btn" data-view="doctors">Специалисты</button>
+      <button class="nav-btn" data-view="reviews">Отзывы</button>
+      <button class="nav-btn" data-view="settings">Настройки сайта</button>
+      <button class="nav-btn" data-view="security">Безопасность</button>
+    </div>
+    <div class="content">
+
+      <!-- LEADS -->
+      <div id="view-leads" class="view">
+        <h1>Заявки на приём</h1>
+        <p class="subtitle">Обращения с формы записи на сайте.</p>
+        <table>
+          <thead><tr><th>Дата</th><th>Имя</th><th>Телефон</th><th>Направление/специалист</th><th>Время</th><th>Сообщение</th><th>Статус</th><th></th></tr></thead>
+          <tbody id="leadsBody"></tbody>
+        </table>
+      </div>
+
+      <!-- PRICES -->
+      <div id="view-prices" class="view hidden">
+        <h1>Прайс-лист</h1>
+        <p class="subtitle">Разделы и позиции с ценами.</p>
+        <div id="pricesList"></div>
+      </div>
+
+      <!-- DOCTORS -->
+      <div id="view-doctors" class="view hidden">
+        <h1>Специалисты</h1>
+        <p class="subtitle">Профили врачей клиники.</p>
+        <div id="doctorsList"></div>
+      </div>
+
+      <!-- REVIEWS -->
+      <div id="view-reviews" class="view hidden">
+        <h1>Отзывы</h1>
+        <p class="subtitle">Отзывы пациентов, отображаемые на странице /otzyvy (только просмотр).</p>
+        <div id="reviewsList"></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="view-settings" class="view hidden">
+        <h1>Настройки сайта</h1>
+        <p class="subtitle">Тексты и контактные данные.</p>
+        <div class="card">
+          <h2>Главная страница</h2>
+          <div class="field"><label for="s_brand_name">Название в шапке</label><input type="text" id="s_brand_name"></div>
+          <div class="field"><label for="s_hero_lede">Текст-пояснение (hero)</label><textarea id="s_hero_lede" rows="3"></textarea></div>
+          <div class="field"><label for="s_chief_greeting">Цитата главного врача</label><textarea id="s_chief_greeting" rows="3"></textarea></div>
+        </div>
+        <div class="card">
+          <h2>О клинике</h2>
+          <div class="field"><label for="s_about_text">Текст (разделяйте абзацы новой строкой)</label><textarea id="s_about_text" rows="6"></textarea></div>
+          <div class="field"><label for="s_mission_text">Миссия</label><textarea id="s_mission_text" rows="3"></textarea></div>
+        </div>
+        <div class="card">
+          <h2>Лицензия и реквизиты</h2>
+          <div class="field"><label for="s_license_number">Номер лицензии</label><input type="text" id="s_license_number"></div>
+          <div class="field"><label for="s_license_date">Дата выдачи</label><input type="text" id="s_license_date"></div>
+          <div class="field"><label for="s_regulators">Регуляторы</label><input type="text" id="s_regulators"></div>
+          <div class="field"><label for="s_legal_name">Юридическое лицо</label><input type="text" id="s_legal_name"></div>
+          <div class="field"><label for="s_inn">ИНН</label><input type="text" id="s_inn"></div>
+          <div class="field"><label for="s_kpp">КПП</label><input type="text" id="s_kpp"></div>
+          <div class="field"><label for="s_ogrn">ОГРН</label><input type="text" id="s_ogrn"></div>
+        </div>
+        <div class="card">
+          <h2>Контакты</h2>
+          <div class="field"><label for="s_phone">Телефон (для tel:-ссылки)</label><input type="text" id="s_phone"></div>
+          <div class="field"><label for="s_phone_display">Телефон (для отображения)</label><input type="text" id="s_phone_display"></div>
+          <div class="field"><label for="s_email">Email</label><input type="text" id="s_email"></div>
+          <div class="field"><label for="s_work_hours">Режим работы</label><input type="text" id="s_work_hours"></div>
+          <div class="field"><label for="s_legal_address">Адрес</label><input type="text" id="s_legal_address"></div>
+          <div class="field"><label for="s_map_embed_url">Ссылка на карту (Яндекс.Карты, встраиваемая)</label><input type="text" id="s_map_embed_url"></div>
+        </div>
+        <button class="btn" id="saveSettingsBtn">Сохранить настройки</button>
+      </div>
+
+      <!-- SECURITY -->
+      <div id="view-security" class="view hidden">
+        <h1>Безопасность</h1>
+        <p class="subtitle">Логин и пароль для входа в админ-панель.</p>
+        <div class="card">
+          <h2>Смена логина</h2>
+          <div class="field"><label for="newUsername">Новый логин</label><input type="text" id="newUsername" autocomplete="username"></div>
+          <div class="field"><label for="usernamePassword">Текущий пароль (для подтверждения)</label><input type="password" id="usernamePassword" autocomplete="current-password"></div>
+          <button class="btn" id="changeUsernameBtn">Сменить логин</button>
+          <p class="error-msg" id="usernameMsg"></p>
+        </div>
+        <div class="card">
+          <h2>Смена пароля</h2>
+          <div class="field"><label for="newPassword">Новый пароль</label><input type="password" id="newPassword" autocomplete="new-password"></div>
+          <button class="btn" id="changePasswordBtn">Сменить пароль</button>
+          <p class="error-msg" id="passwordMsg"></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let csrfToken = null;
+let currentUsername = null;
+
+function $(sel) { return document.querySelector(sel); }
+function esc(str) { return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+function escAttr(str) { return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? '#C43F2C' : '#1B2430';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function api(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  if (opts.method && opts.method !== 'GET') headers['X-CSRF-Token'] = csrfToken;
+  const res = await fetch(path, { ...opts, headers, credentials: 'same-origin' });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка запроса');
+  return data;
+}
+
+// ============ AUTH ============
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const username = document.getElementById('loginUsername').value;
+  const password = document.getElementById('loginPassword').value;
+  try {
+    const data = await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+    csrfToken = data.csrfToken;
+    currentUsername = data.username;
+    enterApp();
+  } catch (err) {
+    document.getElementById('loginError').textContent = err.message;
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await api('/api/admin/logout', { method: 'POST' });
+  location.reload();
+});
+
+async function checkSession() {
+  try {
+    const data = await api('/api/admin/me');
+    csrfToken = data.csrfToken;
+    currentUsername = data.username;
+    enterApp();
+  } catch (err) {
+    document.getElementById('loginScreen').classList.remove('hidden');
+  }
+}
+
+function enterApp() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('adminApp').classList.remove('hidden');
+  document.getElementById('whoAmI').textContent = currentUsername;
+  loadLeadsView();
+  loadPricesView();
+  loadDoctorsView();
+  loadReviewsView();
+  loadSettingsView();
+}
+
+// ============ NAV ============
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-' + btn.dataset.view).classList.remove('hidden');
+  });
+});
+
+// ============ SETTINGS ============
+const SETTINGS_MAP = {
+  s_brand_name: 'brand_name', s_hero_lede: 'hero_lede', s_chief_greeting: 'chief_greeting',
+  s_about_text: 'about_text', s_mission_text: 'mission_text',
+  s_license_number: 'license_number', s_license_date: 'license_date',
+  s_regulators: 'regulators', s_legal_name: 'legal_name',
+  s_inn: 'inn', s_kpp: 'kpp', s_ogrn: 'ogrn',
+  s_phone: 'phone', s_phone_display: 'phone_display', s_email: 'email',
+  s_work_hours: 'work_hours', s_legal_address: 'legal_address',
+  s_map_embed_url: 'map_embed_url',
+};
+async function loadSettingsView() {
+  const settings = await api('/api/settings');
+  Object.entries(SETTINGS_MAP).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = settings[key] || ''; });
+}
+document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
+  const payload = {};
+  Object.entries(SETTINGS_MAP).forEach(([id, key]) => { payload[key] = document.getElementById(id).value; });
+  try { await api('/api/admin/settings', { method: 'PUT', body: JSON.stringify(payload) }); showToast('Настройки сохранены'); }
+  catch (err) { showToast(err.message, true); }
+});
+
+// ============ PRICES ============
+async function loadPricesView() {
+  const full = await api('/api/price-index');
+  const container = document.getElementById('pricesList');
+  container.innerHTML = full.map(cat => `
+    <div class="card">
+      <div class="field"><label>Название раздела</label><input type="text" data-role="cat-title" data-id="${cat.id}" value="${escAttr(cat.title)}"></div>
+      <div class="field"><label>Вводный текст</label><textarea data-role="cat-intro" data-id="${cat.id}" rows="2">${esc(cat.intro || '')}</textarea></div>
+      <h2>Позиции (${cat.items.length})</h2>
+      ${cat.items.map(s => `
+        <div class="service-item">
+          <div class="field" style="margin-bottom:0;"><label>Название</label><input type="text" data-role="i-title" data-id="${s.id}" value="${escAttr(s.title)}"></div>
+          <div class="field" style="margin-bottom:0;"><label>Цена (текст)</label><input type="text" data-role="i-price" data-id="${s.id}" value="${escAttr(s.price_note)}"></div>
+          <button class="btn danger small" data-role="i-delete" data-id="${s.id}" style="align-self:end;">Удалить</button>
+        </div>
+      `).join('')}
+      <button class="btn secondary small" data-role="i-add" data-cat="${cat.id}" style="margin-top:8px;">+ Добавить позицию</button>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('[data-role="cat-title"]').forEach(el => el.addEventListener('change', () => updateCategoryField(el.dataset.id, 'title', el.value)));
+  container.querySelectorAll('[data-role="cat-intro"]').forEach(el => el.addEventListener('change', () => updateCategoryField(el.dataset.id, 'intro', el.value)));
+  container.querySelectorAll('[data-role="i-title"]').forEach(el => el.addEventListener('change', () => updateItemField(el.dataset.id, 'title', el.value)));
+  container.querySelectorAll('[data-role="i-price"]').forEach(el => el.addEventListener('change', () => updateItemField(el.dataset.id, 'price_note', el.value)));
+  container.querySelectorAll('[data-role="i-delete"]').forEach(el => el.addEventListener('click', async () => {
+    if (!confirm('Удалить позицию?')) return;
+    try { await api('/api/admin/price-items/' + el.dataset.id, { method: 'DELETE' }); showToast('Удалено'); loadPricesView(); }
+    catch (err) { showToast(err.message, true); }
+  }));
+  container.querySelectorAll('[data-role="i-add"]').forEach(el => el.addEventListener('click', async () => {
+    const title = prompt('Название новой позиции:');
+    if (!title) return;
+    const price_note = prompt('Цена (текст):') || '';
+    try { await api('/api/admin/price-items', { method: 'POST', body: JSON.stringify({ category_id: Number(el.dataset.cat), title, price_note }) }); showToast('Добавлено'); loadPricesView(); }
+    catch (err) { showToast(err.message, true); }
+  }));
+}
+async function updateCategoryField(id, field, value) {
+  try { await api(`/api/admin/price-categories/${id}`, { method: 'PUT', body: JSON.stringify({ [field]: value }) }); showToast('Сохранено'); }
+  catch (err) { showToast(err.message, true); }
+}
+async function updateItemField(id, field, value) {
+  try { await api(`/api/admin/price-items/${id}`, { method: 'PUT', body: JSON.stringify({ [field]: value }) }); showToast('Сохранено'); }
+  catch (err) { showToast(err.message, true); }
+}
+
+// ============ DOCTORS ============
+async function loadDoctorsView() {
+  const doctors = await api('/api/admin/doctors');
+  const container = document.getElementById('doctorsList');
+  container.innerHTML = doctors.map(d => `
+    <div class="card">
+      <div class="field"><label>ФИО</label><input type="text" data-role="d-name" data-id="${d.id}" value="${escAttr(d.full_name)}"></div>
+      <div class="field"><label>Должность/роль</label><input type="text" data-role="d-role" data-id="${d.id}" value="${escAttr(d.role)}"></div>
+      <div class="field"><label>Стаж (лет, оставьте пустым если неизвестен)</label><input type="number" data-role="d-exp" data-id="${d.id}" value="${d.experience_years ?? ''}"></div>
+      <div class="field"><label>Фото (путь в /img/, оставьте пустым для инициала)</label><input type="text" data-role="d-photo" data-id="${d.id}" value="${escAttr(d.photo)}"></div>
+      <div class="field"><label>Биография</label><textarea data-role="d-bio" data-id="${d.id}" rows="5">${esc(d.bio)}</textarea></div>
+    </div>
+  `).join('');
+  container.querySelectorAll('[data-role="d-name"]').forEach(el => el.addEventListener('change', () => updateDoctorField(el.dataset.id, 'full_name', el.value)));
+  container.querySelectorAll('[data-role="d-role"]').forEach(el => el.addEventListener('change', () => updateDoctorField(el.dataset.id, 'role', el.value)));
+  container.querySelectorAll('[data-role="d-exp"]').forEach(el => el.addEventListener('change', () => updateDoctorField(el.dataset.id, 'experience_years', el.value ? Number(el.value) : null)));
+  container.querySelectorAll('[data-role="d-photo"]').forEach(el => el.addEventListener('change', () => updateDoctorField(el.dataset.id, 'photo', el.value)));
+  container.querySelectorAll('[data-role="d-bio"]').forEach(el => el.addEventListener('change', () => updateDoctorField(el.dataset.id, 'bio', el.value)));
+}
+async function updateDoctorField(id, field, value) {
+  try { await api(`/api/admin/doctors/${id}`, { method: 'PUT', body: JSON.stringify({ [field]: value }) }); showToast('Сохранено'); }
+  catch (err) { showToast(err.message, true); }
+}
+
+// ============ REVIEWS (только просмотр) ============
+async function loadReviewsView() {
+  const reviews = await api('/api/reviews');
+  const container = document.getElementById('reviewsList');
+  if (!reviews.length) { container.innerHTML = '<p style="color:var(--ink-faint);">Отзывов пока нет.</p>'; return; }
+  container.innerHTML = reviews.map(r => `
+    <div class="card">
+      <b>${esc(r.author_name)}</b> <span style="color:var(--ink-faint); font-size:12px;">— ${formatDate(r.published_at)}</span>
+      <p style="margin-top:8px; color:var(--ink-soft);">${esc(r.body)}</p>
+    </div>
+  `).join('');
+}
+
+// ============ LEADS ============
+async function loadLeadsView() {
+  const leads = await api('/api/admin/leads');
+  const tbody = $('#leadsBody');
+  if (!leads.length) { tbody.innerHTML = '<tr><td colspan="8" style="color:var(--ink-faint);">Заявок пока нет.</td></tr>'; return; }
+  tbody.innerHTML = leads.map(l => `
+    <tr>
+      <td>${formatDate(l.created_at)}</td>
+      <td>${esc(l.name || '—')}</td>
+      <td>${esc(l.phone || '—')}</td>
+      <td>${esc(l.service_or_doctor || '—')}</td>
+      <td>${esc(l.preferred_time || '—')}</td>
+      <td>${esc(l.message || '—')}</td>
+      <td>
+        <select data-role="lead-status" data-id="${l.id}">
+          <option value="new" ${l.status === 'new' ? 'selected' : ''}>Новая</option>
+          <option value="in_progress" ${l.status === 'in_progress' ? 'selected' : ''}>В работе</option>
+          <option value="done" ${l.status === 'done' ? 'selected' : ''}>Завершена</option>
+        </select>
+      </td>
+      <td><button class="btn danger small" data-role="lead-delete" data-id="${l.id}">Удалить</button></td>
+    </tr>
+  `).join('');
+  tbody.querySelectorAll('[data-role="lead-status"]').forEach(el => {
+    el.addEventListener('change', async () => {
+      try { await api(`/api/admin/leads/${el.dataset.id}`, { method: 'PUT', body: JSON.stringify({ status: el.value }) }); showToast('Статус обновлён'); }
+      catch (err) { showToast(err.message, true); }
+    });
+  });
+  tbody.querySelectorAll('[data-role="lead-delete"]').forEach(el => {
+    el.addEventListener('click', async () => {
+      if (!confirm('Удалить заявку?')) return;
+      try { await api(`/api/admin/leads/${el.dataset.id}`, { method: 'DELETE' }); showToast('Удалено'); loadLeadsView(); }
+      catch (err) { showToast(err.message, true); }
+    });
+  });
+}
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso + 'Z');
+  return d.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+// ============ SECURITY ============
+document.getElementById('changePasswordBtn').addEventListener('click', async () => {
+  const newPassword = document.getElementById('newPassword').value;
+  try {
+    await api('/api/admin/change-password', { method: 'POST', body: JSON.stringify({ newPassword }) });
+    document.getElementById('passwordMsg').style.color = 'var(--success)';
+    document.getElementById('passwordMsg').textContent = 'Пароль изменён.';
+    document.getElementById('newPassword').value = '';
+  } catch (err) {
+    document.getElementById('passwordMsg').style.color = 'var(--danger)';
+    document.getElementById('passwordMsg').textContent = err.message;
+  }
+});
+document.getElementById('changeUsernameBtn').addEventListener('click', async () => {
+  const newUsername = document.getElementById('newUsername').value;
+  const currentPassword = document.getElementById('usernamePassword').value;
+  try {
+    const data = await api('/api/admin/change-username', { method: 'POST', body: JSON.stringify({ newUsername, currentPassword }) });
+    currentUsername = data.username;
+    document.getElementById('whoAmI').textContent = currentUsername;
+    document.getElementById('usernameMsg').style.color = 'var(--success)';
+    document.getElementById('usernameMsg').textContent = 'Логин изменён.';
+    document.getElementById('usernamePassword').value = '';
+  } catch (err) {
+    document.getElementById('usernameMsg').style.color = 'var(--danger)';
+    document.getElementById('usernameMsg').textContent = err.message;
+  }
+});
+
+checkSession();
+</script>
+</body>
+</html>

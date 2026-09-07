@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">О клинике — Медицинский центр «Планета Здоровья», Красноярск</title>
+<meta name="description" id="pageDescription" content="История и миссия медицинского центра «Планета Здоровья»: специализированная реабилитация детей и взрослых в Красноярске, экспресс-ортезирование ORDEKT.">
+<link rel="canonical" href="https://ЗАМЕНИТЕ-НА-ДОМЕН.ru/o-klinike">
+<link rel="icon" href="/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="/img/logo-mark-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+
+<main>
+  <div class="page-header wrap">
+    <span class="eyebrow">О клинике</span>
+    <h1>Специализированная реабилитация — с опорой на практику</h1>
+  </div>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap split-layout">
+      <div class="body-rich" id="aboutText" style="font-size:1.05rem;"></div>
+      <div class="form-card" style="padding:28px; box-shadow:none; background:var(--accent-soft); border:none;">
+        <h3 style="margin-bottom:14px;">Наша миссия</h3>
+        <p id="missionText" style="color:var(--ink-soft);"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="chief-quote-card">
+        <div>
+          <img src="/img/director-sq.jpg" alt="Устинова Алёна Васильевна — директор и главный врач" style="width:100%; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,0.3);">
+        </div>
+        <div>
+          <span class="eyebrow" style="color:var(--amber);">Директор и главный врач</span>
+          <h2 style="color:#fff;">Устинова Алёна Васильевна</h2>
+          <p style="margin-top:6px; color:var(--amber);">Кандидат медицинских наук, невролог высшей квалификационной категории</p>
+          <p class="quote-block" style="color:#fff; border-color:var(--amber);" id="chiefGreeting"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="disclaimer-box">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.18A2 2 0 0 0 3.9 21h16.2a2 2 0 0 0 1.79-2.96L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+        <p>Имеются противопоказания. Необходима консультация специалиста.</p>
+      </div>
+      <div class="cta-band">
+        <span class="eyebrow" style="color:var(--amber);">Знакомство с клиникой</span>
+        <h2>Хотите узнать больше о наших врачах?</h2>
+        <a href="/spetsialisty" class="btn btn-primary" style="background:#fff; color:var(--ink);">Все специалисты</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footerPlaceholder"></div>
+
+<script src="/common.js"></script>
+<script>
+async function loadAbout() {
+  const settings = await loadSettingsGlobal();
+  document.getElementById('aboutText').innerHTML = (settings.about_text || '').split('\n').filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('');
+  document.getElementById('missionText').textContent = settings.mission_text || '';
+  document.getElementById('chiefGreeting').textContent = settings.chief_greeting ? '«' + settings.chief_greeting + '»' : '';
+}
+loadAbout();
+</script>
+</body>
+</html>
