@@ -9,7 +9,7 @@ function verifyAdmin(username, password) {
 }
 
 function changePassword(username, newPassword) {
-  const hash = bcrypt.hashSync(newPassword, 10);
+  const hash = bcrypt.hashSync(newPassword, 12);
   db.prepare('UPDATE admins SET password_hash = ? WHERE username = ?').run(hash, username);
 }
 

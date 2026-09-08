@@ -93,7 +93,7 @@ function seedAdmin() {
   }
   const username = process.env.ADMIN_USERNAME || 'admin';
   const password = process.env.ADMIN_PASSWORD || 'planeta2026';
-  const hash = bcrypt.hashSync(password, 10);
+  const hash = bcrypt.hashSync(password, 12);
   db.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)').run(username, hash);
   console.log(`Создан админ: логин "${username}", пароль "${password}" (смените после первого входа!).`);
 }

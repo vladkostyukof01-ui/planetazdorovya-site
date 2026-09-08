@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://ЗАМЕНИТЕ-НА-ДОМЕН.ru/sitemap.xml
+Sitemap: https://planetazdorovya-site-1.onrender.com/sitemap.xml
